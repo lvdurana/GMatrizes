@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "resource.h"
 
-#define M1_X_POS 30
+#define M1_X_POS 10
 #define M1_Y_POS 30
 #define M2_X_POS 680
 #define M2_Y_POS 30

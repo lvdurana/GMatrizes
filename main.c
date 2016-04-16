@@ -4,6 +4,7 @@
     #define UNICODE
 #endif
 
+
 #include "f_base.c"
 
 void desenhar_matriz(HWND hwnd, HDC hdc, matriz *mat, int pos_x, int pos_y){
@@ -40,6 +41,36 @@ void desenhar_matriz(HWND hwnd, HDC hdc, matriz *mat, int pos_x, int pos_y){
 
 
 };
+
+void desenhar_dado(HDC hdc, matriz *mat, int pos_x, int pos_y){
+    RECT rect;
+    char text[15];
+
+    rect.top = pos_y+1;
+    rect.left = pos_x+1;
+    rect.right = pos_x+M_FIELD_WIDTH-1;
+    rect.bottom = pos_y+M_FIELD_HEIGHT-1;
+    sprintf(text,"%d",666);
+
+    DrawText(hdc, text, -1, &rect, DT_WORDBREAK|DT_CENTER);
+
+
+}
+
+void desenhar_dados_matriz(HDC hdc, matriz *mat, int pos_x, int pos_y){
+    int i,j;
+    for(i=0;i<mat->dim_y;i++){
+        for(j=0;j<mat->dim_x;j++){
+            desenhar_dado(hdc, mat, pos_x+j*M_FIELD_WIDTH,pos_y+i*M_FIELD_HEIGHT);
+            //printf("%d\n",M_FIELD_WIDTH);
+
+        };
+    };
+
+
+
+}
+
 
 /*  Declare Windows procedure  */
 LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
@@ -195,7 +226,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
             //mat_box1 = CreateWindowEx (0,"Static", _T("M1"),SS_BITMAP|SS_CENTERIMAGE|WS_CHILD,M1_X_POS,M1_Y_POS,M_WIDTH,M_HEIGHT,hwnd,NULL,GetModuleHandle(NULL),NULL);
             //ShowWindow(mat_box1, SW_SHOW);
 
-            box1 = CreateDialog(GetModuleHandle(NULL),MAKEINTRESOURCE(1001),hwnd,box1proc);
+            //box1 = CreateDialog(GetModuleHandle(NULL),MAKEINTRESOURCE(1001),hwnd,box1proc);
             if(box1 != NULL)
                 ShowWindow(box1, SW_SHOW);
             SendMessage(box1,WM_CREATE,0,0);
@@ -229,10 +260,13 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
 
             EndPaint(hwnd, &ps);*/
             matriz mat;
-            mat.dim_x = 10;
-            mat.dim_y = 5;
+            mat.dim_x = 20;
+            mat.dim_y = 20;
             desenhar_matriz(hwnd,hdc,&mat,M1_X_POS,M1_Y_POS);
             desenhar_matriz(hwnd,hdc,&mat,M2_X_POS,M2_Y_POS);
+            desenhar_dados_matriz(hdc,&mat,M1_X_POS,M1_Y_POS);
+            desenhar_dados_matriz(hdc,&mat,M2_X_POS,M2_Y_POS);
+
             //desenhar_matriz(hwnd,hdc,&mat,40,M1_Y_POS);
 
             EndPaint(hwnd, &ps);
