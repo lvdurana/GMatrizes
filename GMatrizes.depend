@@ -1,24 +1,29 @@
 # depslib dependency file v1.0
-1460690239 source:c:\users\usuario\documents\projects\c\win32\gmatrizes\f_base.c
-	<tchar.h>
-	<windows.h>
-	<stdio.h>
-	"resource.h"
+1461124780 source:c:\users\usuario\documents\projects\c\win32\gmatrizes\f_base.c
+	"f_base.h"
 
 1460673989 c:\users\usuario\documents\projects\c\win32\gmatrizes\resource.h
 
-1460674005 source:c:\users\usuario\documents\projects\c\win32\gmatrizes\resource.rc
+1460929115 source:c:\users\usuario\documents\projects\c\win32\gmatrizes\resource.rc
 	<windows.h>
 	<commctrl.h>
 	<richedit.h>
 	"resource.h"
 
-1460690860 source:c:\users\usuario\documents\projects\c\win32\gmatrizes\main.c
-	"f_base.c"
+1461212768 source:c:\users\usuario\documents\projects\c\win32\gmatrizes\main.c
+	"f_base.h"
 
-1460692149 c:\users\usuario\documents\projects\c\win32\gmatrizes\f_base.c
+1460875913 c:\users\usuario\documents\projects\c\win32\gmatrizes\f_base.c
+	<tchar.h>
+	<windows.h>
+	<stdio.h>
+
+1461212785 c:\users\usuario\documents\projects\c\win32\gmatrizes\f_base.h
 	<tchar.h>
 	<windows.h>
 	<stdio.h>
 	"resource.h"
+
+1461212460 source:c:\users\usuario\documents\projects\c\win32\gmatrizes\matriz.c
+	"f_base.h"
 
