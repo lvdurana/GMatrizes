@@ -74,7 +74,7 @@ void criar_botoes(HWND hwnd, HWND *buttons){
                 "Somar",      // Button text
                 WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,  // Styles
                 10,         // x position
-                10,         // y position
+                300,         // y position
                 100,        // Button width
                 100,        // Button height
                 hwnd,     // Parent window
@@ -85,4 +85,46 @@ void criar_botoes(HWND hwnd, HWND *buttons){
 
 
 }
+
+void fechar_janela(HWND *hwnd){
+    *hwnd = NULL;
+}
+
+int verificar_cursor(gm_select *sel, int cur_x,int cur_y, int ox_mat, int oy_mat, int dim_x_mat, int dim_y_mat){
+
+    cur_x = (int)floor((float)(cur_x-ox_mat)/M_FIELD_WIDTH);
+    cur_y = (int)floor((float)(cur_y-oy_mat)/M_FIELD_HEIGHT);
+    /*cur_x-=ox_mat;
+    cur_y-=oy_mat;
+
+    cur_x/=M_FIELD_WIDTH;
+    cur_y/=M_FIELD_HEIGHT;*/
+    //printf("%d %d\n",cur_x, cur_y);
+
+    if(cur_x<dim_x_mat && cur_x >= 0)
+        if(cur_y<dim_y_mat && cur_y >= 0){
+            sel->x = cur_x;
+            sel->y = cur_y;
+            return 0;
+        };
+    return 1;
+
+}
+
+int verificar_cursor_matrizes(gm_select *sel, matriz *matrizes, int cur_x, int cur_y){
+    //for(i=0;i<NUM_MATRIZES;i++){
+        if(!verificar_cursor(sel,cur_x,cur_y,M1_X_POS,M1_Y_POS,(matrizes+0)->dim_x,(matrizes+0)->dim_y)){
+            sel->index = 0;
+            return 0;
+        }
+        else{
+            if(!verificar_cursor(sel,cur_x,cur_y,M2_X_POS,M2_Y_POS,(matrizes+1)->dim_x,(matrizes+1)->dim_y)){
+                sel->index = 1;
+                return 0;
+            };
+        };
+    //}
+    return 1;
+
+};
 

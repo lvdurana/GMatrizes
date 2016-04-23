@@ -11,10 +11,14 @@ TCHAR szClassName[ ] = _T("CodeBlocksWindowsApp");
 //Global variables
 HBITMAP matriz_base = NULL;
 
-HWND box1,box2;
-HWND mat_box1, mat_box2;
+//HWND box1,box2;
+//HWND mat_box1, mat_box2;
 HWND h_buttons[5]; //button
-matriz mat[2];
+matriz mat[3];
+HWND gm_active_window = NULL;
+HWND main_window;
+gm_select gm_selected;
+
 
 
 int WINAPI WinMain (HINSTANCE hThisInstance,
@@ -73,6 +77,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
 
     /* Make the window visible on the screen */
     ShowWindow (hwnd, nCmdShow);
+    main_window = hwnd;
 
 
 
@@ -118,12 +123,8 @@ BOOL CALLBACK box1proc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 
             HDC hdc = BeginPaint(hwnd, &ps);
 
-            matriz mat;
-            mat.dim_x = 20;
-            mat.dim_y = 20;
-            desenhar_matriz(hwnd,hdc,&mat,M1_X_POS,M1_Y_POS);
-
-            desenhar_dados_matriz(hdc,&mat,M1_X_POS,M1_Y_POS);
+            desenhar_matriz(hwnd,hdc,&mat[2],M1_X_POS,M1_Y_POS);
+            desenhar_dados_matriz(hdc,&mat[2],M1_X_POS,M1_Y_POS);
 
 
             //desenhar_matriz(hwnd,hdc,&mat,40,M1_Y_POS);
@@ -133,7 +134,8 @@ BOOL CALLBACK box1proc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
             }
             break;
         case WM_CLOSE:
-            DestroyWindow(hwnd);        /* send a WM_QUIT to the message queue */
+            DestroyWindow(hwnd);
+            fechar_janela(&gm_active_window);
             break;
         default:
             return FALSE;
@@ -151,8 +153,17 @@ BOOL CALLBACK box_data_proc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lPara
             switch(LOWORD(wParam))
             {
                 case IDOK:
-                    MessageBox(hwnd, "Hi!", "This is a message",
-                        MB_OK | MB_ICONEXCLAMATION);
+                    //MessageBox(hwnd, "Hi!", "This is a message", MB_OK | MB_ICONEXCLAMATION);
+                    {
+                        char *mione;
+                        mione = (char*)malloc(sizeof(char)*MAX_CHAR_SIZE);
+                        GetWindowText(GetDlgItem(hwnd,4001),mione,MAX_CHAR_SIZE);
+                        //printf("%f",atof(mione));
+                        inserir_dado_ordenado(&(mat[gm_selected.index].inicio),atof(mione),gm_selected.x,gm_selected.y,mat[gm_selected.index].dim_x,mat[gm_selected.index].dim_y);
+                        SendMessage(hwnd,WM_CLOSE,0,0);
+                        RedrawWindow(main_window, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+
+                    }
                 break;
 
 
@@ -164,7 +175,9 @@ BOOL CALLBACK box_data_proc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lPara
             }
             break;
         case WM_CLOSE:
-            DestroyWindow(hwnd);        /* send a WM_QUIT to the message queue */
+            DestroyWindow(hwnd);
+            fechar_janela(&gm_active_window);
+
             break;
         default:
             return FALSE;
@@ -223,11 +236,9 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
 
 
             desenhar_matriz(hwnd,hdc,&mat[0],M1_X_POS,M1_Y_POS);
-            desenhar_matriz(hwnd,hdc,&mat[0],M2_X_POS,M2_Y_POS);
+            desenhar_matriz(hwnd,hdc,&mat[1],M2_X_POS,M2_Y_POS);
             desenhar_dados_matriz(hdc,&mat[0],M1_X_POS,M1_Y_POS);
-            desenhar_dados_matriz(hdc,&mat[0],M2_X_POS,M2_Y_POS);
-
-            //desenhar_matriz(hwnd,hdc,&mat,40,M1_Y_POS);
+            desenhar_dados_matriz(hdc,&mat[1],M2_X_POS,M2_Y_POS);
 
             EndPaint(hwnd, &ps);
         }
@@ -244,21 +255,36 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                     TextOut(GetDC(hwnd),0,30,"Oi Cassianooooooooooooooooooo",20);
                 break;
                 case BN_CLICKED:
-                    printf("%s","click");
-                    box1 = CreateDialog(GetModuleHandle(NULL),MAKEINTRESOURCE(1001),hwnd,box1proc);
-            if(box1 != NULL)
-                ShowWindow(box1, SW_SHOW);
-            SendMessage(box1,WM_CREATE,0,0);
+                    if(!gm_active_window){
+                        mat[2].inicio = somar_matriz(mat[0].inicio,mat[1].inicio,mat[0].dim_x,mat[0].dim_y);
+                        mat[2].dim_x = mat[0].dim_x;
+                        mat[2].dim_y = mat[0].dim_y;
+                        gm_active_window = CreateDialog(GetModuleHandle(NULL),MAKEINTRESOURCE(1001),hwnd,box1proc);
+                        if(gm_active_window != NULL){
+                            ShowWindow(gm_active_window, SW_SHOW);
+                            SendMessage(gm_active_window,WM_CREATE,0,0);
+                        };
+                    };
                     //lParam=handle
 
                 break;
             }
             break;
         case WM_LBUTTONDOWN:
-            printf("%d %d\n",HIWORD(lParam),LOWORD(lParam));
-            box2 = CreateDialog(GetModuleHandle(NULL),MAKEINTRESOURCE(1002),hwnd,box_data_proc);
-            SendDlgItemMessage(box2,4001,WM_SETTEXT,0,"oizinho");
-            //SetWindowText(GetDlgItem(box2,4001),"oizinho");
+            {
+                //printf("%d %d\n",HIWORD(lParam),LOWORD(lParam));
+                if(!gm_active_window){
+                    if(!verificar_cursor_matrizes(&gm_selected,mat,LOWORD(lParam),HIWORD(lParam))){
+                        char *dado;
+                        dado = (char*)malloc(sizeof(char)*(MAX_CHAR_SIZE+MAX_PRECISION+2));
+                        sprintf(dado,"%.*f",MAX_PRECISION,procurar(mat[gm_selected.index].inicio,gm_selected.x,gm_selected.y));
+                        gm_active_window = CreateDialog(GetModuleHandle(NULL),MAKEINTRESOURCE(1002),hwnd,box_data_proc);
+                        SendDlgItemMessage(gm_active_window,4001,WM_SETTEXT,0,dado);
+                        SendDlgItemMessage(gm_active_window,4001,WM_PAINT,0,0);
+                        //SetWindowText(GetDlgItem(gm_active_window,4001),"oizinho");
+                    };
+                };
+            }
         break;
         case WM_DESTROY:
             PostQuitMessage (0);       /* send a WM_QUIT to the message queue */

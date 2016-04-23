@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1461124780 source:c:\users\usuario\documents\projects\c\win32\gmatrizes\f_base.c
+1461387929 source:c:\users\usuario\documents\projects\c\win32\gmatrizes\f_base.c
 	"f_base.h"
 
 1460673989 c:\users\usuario\documents\projects\c\win32\gmatrizes\resource.h
@@ -10,7 +10,7 @@
 	<richedit.h>
 	"resource.h"
 
-1461212768 source:c:\users\usuario\documents\projects\c\win32\gmatrizes\main.c
+1461391386 source:c:\users\usuario\documents\projects\c\win32\gmatrizes\main.c
 	"f_base.h"
 
 1460875913 c:\users\usuario\documents\projects\c\win32\gmatrizes\f_base.c
@@ -18,12 +18,13 @@
 	<windows.h>
 	<stdio.h>
 
-1461212785 c:\users\usuario\documents\projects\c\win32\gmatrizes\f_base.h
+1461388800 c:\users\usuario\documents\projects\c\win32\gmatrizes\f_base.h
 	<tchar.h>
 	<windows.h>
 	<stdio.h>
+	<math.h>
 	"resource.h"
 
-1461212460 source:c:\users\usuario\documents\projects\c\win32\gmatrizes\matriz.c
+1461391210 source:c:\users\usuario\documents\projects\c\win32\gmatrizes\matriz.c
 	"f_base.h"
 
