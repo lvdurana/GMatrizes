@@ -85,11 +85,6 @@ void inserir_dado_ordenado(nodo **p,float dado,int x ,int y ,int max_x ,int max_
         }
     }
 }
-void yay()
-{
-    printf("*yay*");
-}
-
 
 void liberar_memoria(nodo *mat)
 {
@@ -102,10 +97,20 @@ void liberar_memoria(nodo *mat)
 
 }
 
+void limpar_matriz(nodo **inicio){
+    *inicio = NULL;
+}
+
+void alterar_dimensao(nodo **inicio, int *old_x, int *old_y, int new_x, int new_y){
+    *inicio = NULL;
+    *old_x = new_x;
+    *old_y = new_y;
+
+}
 
 
 
-retornar_valor(int x, int y,int max_y)
+int retornar_valor(int x, int y,int max_y)
 {
     return (y*max_y)+x;
 };
@@ -116,10 +121,9 @@ float *mostrar_dados(nodo *lista,int max_x,int max_y)
 int c,d;
 nodo *aux;
 aux = lista;
-float *mat;
+float *mats;
 
-mat = (float*)malloc(sizeof(float)*max_x*max_y);
-
+mats = (float*)malloc(sizeof(float)*(max_x*max_y));
 
 if (aux == NULL)
 {
@@ -127,12 +131,11 @@ if (aux == NULL)
     {
         for(c=0;c<max_x;c++)
         {
-            *(mat+d*max_y+c) = 0;
-            //mat[d][c] = 0;
-            //printf("0 ");
+            *(mats +(d*max_x)+c) = 0;
+            //printf("%.0f",*(mats+(d*max_x)+c));
 
         }
-        printf("\n");
+        //printf("\n");
     }
 
 }
@@ -144,23 +147,51 @@ else
         {
             if ((aux->col == c) && (aux->lin == d))
             {
-                *(mat+d*max_y+c) = aux->dado;
-                //printf("%.0f ", aux->dado);
+                *(mats+(d*max_x)+c) = aux->dado;
+                //printf("%.0f",*(mats+(d*max_x)+c));
                 if (aux->prox != NULL)
                     aux = aux->prox;
             }
             else
             {
-                *(mat+d*max_y+c) = 0;
-                //printf("0 ");
+                *(mats+(d*max_x)+c) = 0;
+                //printf("%.0f",*(mats+(d*max_x)+c));
 
             }
+
         }
         //printf("\n");
     }
 
 }
-return mat;
+
+return mats;
+
+}
+
+float *mostrar_dados_diagonal(nodo *lista,int dim)
+{
+
+int c;
+nodo *aux = lista;
+float *mats = (float*)malloc(sizeof(float)*dim);
+
+if (aux == NULL)
+    for(c=0;c<dim;c++)
+        *(mats+c) = 0;
+else{
+    for(c=0;c<dim;c++){
+            if ((aux->col == c) && (aux->lin == c)){
+                *(mats+c) = aux->dado;
+                if (aux->prox != NULL)
+                    aux = aux->prox;
+            }
+            else
+                *(mats+c) = 0;
+
+        };
+};
+return mats;
 
 }
 
@@ -228,7 +259,7 @@ for(d=0;d<max_lin;d++)
 
 
 
-int subtrair_matriz(nodo *aux1, nodo *aux2,int max_col,int max_lin)
+nodo *subtrair_matriz(nodo *aux1, nodo *aux2,int max_col,int max_lin)
 {
 int c,d;
 float a,b;
@@ -262,8 +293,7 @@ for(d=0;d<max_lin;d++)
         a = a-b;
         if (a != 0)
         {
-            //printf("%d",*aux3);
-            //inserir_dado_ordenado((&aux3),a,c,d,max_col,max_lin);
+            inserir_dado_ordenado((&aux3),a,c,d,max_col,max_lin);
 
         }
 
@@ -274,14 +304,14 @@ for(d=0;d<max_lin;d++)
 }
 
 
-int transpor_matriz(nodo *mat1,int max_x,int max_y)
+nodo *transpor_matriz(nodo *mat1,int max_x,int max_y)
 {
     nodo *aux,*mat2;
     mat2 = NULL;
 
     for(aux = mat1; ((aux) != NULL); aux = aux->prox)
     {
-        //inserir_dado_ordenado(&mat2,aux->dado,aux->lin,aux->col,max_y,max_x);
+        inserir_dado_ordenado(&mat2,aux->dado,aux->lin,aux->col,max_y,max_x);
     }
 
     return mat2;
@@ -301,7 +331,7 @@ float procurar(nodo *aux, int x, int y)
     return dado;
 }
 
-int multiplicar_matriz(nodo *mat1, nodo *mat2, int max_x1, int max_y1,int max_x2, int max_y2)
+nodo *multiplicar_matriz(nodo *mat1, nodo *mat2, int max_x1, int max_y1,int max_x2, int max_y2)
 {
     int c,d,i,j;
     float dado1,dado2,dado3;

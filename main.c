@@ -1,20 +1,10 @@
 #include "f_base.h"
 
-
-
-
-/*  Declare Windows procedure  */
-LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
-
-/*  Make the class name into a global variable  */
-TCHAR szClassName[ ] = _T("CodeBlocksWindowsApp");
-//Global variables
-HBITMAP matriz_base = NULL;
-
-//HWND box1,box2;
-//HWND mat_box1, mat_box2;
-HWND h_buttons[5]; //button
-matriz mat[3];
+//Variáveis globais
+TCHAR szClassName[] = _T("CodeBlocksWindowsApp");
+//HBITMAP matriz_base = NULL;
+HWND h_buttons[NUM_BUTTONS]; //button
+matriz mat[NUM_MATRIZES+1];
 HWND gm_active_window = NULL;
 HWND main_window;
 gm_select gm_selected;
@@ -29,10 +19,6 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     HWND hwnd;               /* This is the handle for our window */
     MSG messages;            /* Here messages to the application are saved */
     WNDCLASSEX wincl;        /* Data structure for the windowclass */
-
-    //Extra Windows
-
-
 
     /* The Window structure */
     wincl.hInstance = hThisInstance;
@@ -63,30 +49,21 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
            WS_OVERLAPPEDWINDOW, /* default window */
            CW_USEDEFAULT,       /* Windows decides the position */
            CW_USEDEFAULT,       /* where the window ends up on the screen */
-           544,                 /* The programs width */
-           375,                 /* and height in pixels */
+           WINDOW_WIDTH,                 /* The programs width */
+           WINDOW_HEIGHT,                 /* and height in pixels */
            HWND_DESKTOP,        /* The window is a child-window to desktop */
            NULL,                /* No menu */
            hThisInstance,       /* Program Instance handler */
            NULL                 /* No Window Creation data */
            );
 
-
-
-
-
     /* Make the window visible on the screen */
     ShowWindow (hwnd, nCmdShow);
     main_window = hwnd;
 
-
-
-
-
     /* Run the message loop. It will run until GetMessage() returns 0 */
     while (GetMessage (&messages, NULL, 0, 0))
     {
-
         /* Translate virtual-key messages into character messages */
         TranslateMessage(&messages);
         /* Send message to WindowProcedure */
@@ -104,33 +81,36 @@ BOOL CALLBACK box1proc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
     switch(Message)
     {
-        //case WM_CREATE:
-        case WM_COMMAND:
-            switch(LOWORD(wParam))
-            {
-                //case IDC_PRESS:
-                //    MessageBox(hwnd, "Hi!", "This is a message",
-                //        MB_OK | MB_ICONEXCLAMATION);
-                //break;
-
-
-            }
-        break;
         case WM_PAINT:
             {
+                PAINTSTRUCT ps;
+                HDC hdc = BeginPaint(hwnd, &ps);
+                desenhar_matriz(hwnd,hdc,&mat[2],M1_X_POS,M1_Y_POS);
+                desenhar_dados_matriz(hdc,&mat[2],M1_X_POS,M1_Y_POS);
+                EndPaint(hwnd, &ps);
+            }
+            break;
+        case WM_CLOSE:
+            DestroyWindow(hwnd);
+            fechar_janela(&gm_active_window);
+            break;
+        default:
+            return FALSE;
+    }
+    return TRUE;
+}
 
-            PAINTSTRUCT ps;
-
-            HDC hdc = BeginPaint(hwnd, &ps);
-
-            desenhar_matriz(hwnd,hdc,&mat[2],M1_X_POS,M1_Y_POS);
-            desenhar_dados_matriz(hdc,&mat[2],M1_X_POS,M1_Y_POS);
-
-
-            //desenhar_matriz(hwnd,hdc,&mat,40,M1_Y_POS);
-
-            EndPaint(hwnd, &ps);
-
+BOOL CALLBACK diag_proc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
+{
+    switch(Message)
+    {
+        case WM_PAINT:
+            {
+                PAINTSTRUCT ps;
+                HDC hdc = BeginPaint(hwnd, &ps);
+                desenhar_matriz(hwnd,hdc,&mat[2],M1_X_POS,M1_Y_POS);
+                desenhar_dados_diagonal(hdc,&mat[2],M1_X_POS,M1_Y_POS);
+                EndPaint(hwnd, &ps);
             }
             break;
         case WM_CLOSE:
@@ -148,12 +128,10 @@ BOOL CALLBACK box_data_proc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lPara
 {
     switch(Message)
     {
-        //case WM_CREATE:
         case WM_COMMAND:
             switch(LOWORD(wParam))
             {
                 case IDOK:
-                    //MessageBox(hwnd, "Hi!", "This is a message", MB_OK | MB_ICONEXCLAMATION);
                     {
                         char *mione;
                         mione = (char*)malloc(sizeof(char)*MAX_CHAR_SIZE);
@@ -162,22 +140,17 @@ BOOL CALLBACK box_data_proc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lPara
                         inserir_dado_ordenado(&(mat[gm_selected.index].inicio),atof(mione),gm_selected.x,gm_selected.y,mat[gm_selected.index].dim_x,mat[gm_selected.index].dim_y);
                         SendMessage(hwnd,WM_CLOSE,0,0);
                         RedrawWindow(main_window, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
-
                     }
                 break;
-
-
+                case IDCANCEL:
+                    DestroyWindow(hwnd);
+                    fechar_janela(&gm_active_window);
+                break;
             }
         break;
-        case WM_PAINT:
-            {
-
-            }
-            break;
         case WM_CLOSE:
             DestroyWindow(hwnd);
             fechar_janela(&gm_active_window);
-
             break;
         default:
             return FALSE;
@@ -185,8 +158,48 @@ BOOL CALLBACK box_data_proc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lPara
     return TRUE;
 }
 
+BOOL CALLBACK edit_dim_proc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
+{
+    switch(Message)
+    {
+        case WM_COMMAND:
+            switch(LOWORD(wParam))
+            {
+                case IDOK:
+                    {
+                        char *col, *lin;
+                        int x, y;
+                        col = (char*)malloc(sizeof(char)*MAX_CHAR_SIZE);
+                        lin = (char*)malloc(sizeof(char)*MAX_CHAR_SIZE);
 
-/*  This function is called by the Windows function DispatchMessage()  */
+                        GetWindowText(GetDlgItem(hwnd,4001),col,MAX_CHAR_SIZE);
+                        GetWindowText(GetDlgItem(hwnd,4003),lin,MAX_CHAR_SIZE);
+                        x = atoi(col);
+                        y = atoi(lin);
+
+                        if(x <= MAX_X_DIMENSION && x > 0 && y <= MAX_Y_DIMENSION && y > 0){
+                            alterar_dimensao(&(mat[gm_selected.index].inicio), &(mat[gm_selected.index].dim_x) ,&(mat[gm_selected.index].dim_y) ,x, y);
+                            SendMessage(hwnd,WM_CLOSE,0,0);
+                            InvalidateRect(main_window,NULL,1);
+                            UpdateWindow(main_window);
+                        };
+                    }
+                break;
+                case IDCANCEL:
+                    DestroyWindow(hwnd);
+                    fechar_janela(&gm_active_window);
+                break;
+            }
+        break;
+        case WM_CLOSE:
+            DestroyWindow(hwnd);
+            fechar_janela(&gm_active_window);
+            break;
+        default:
+            return FALSE;
+    }
+    return TRUE;
+}
 
 LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -199,33 +212,24 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
             {
                 int i;
                 nodo  *d[2];
-                matriz materia;
-                float l = 2.015;
+                HWND matriz_base;
                 for(i=0;i<2;i++){
                     mat[i].inicio = NULL;
-                    mat[i].dim_x = 5;
-                    mat[i].dim_y = 5;
+                    mat[i].dim_x = 4;//MAX_X_DIMENSION;
+                    mat[i].dim_y = 3;//MAX_Y_DIMENSION;
                     d[i]=&(mat[i].inicio);
 
-
-                    materia.inicio = NULL;
-                    materia.dim_x = 5;
-                    materia.dim_y = 5;
-
-                    printf("%f\n",l);
                     inserir_dado_ordenado(d[i],32,2,3,mat[i].dim_x,mat[i].dim_y);
-                    //printf("%f",mat[0].inicio->dado);
+
                 }
-            }
 
-            criar_botoes(hwnd, h_buttons);
 
-            matriz_base = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(SM_BMP_MATRIZ));
-            if(matriz_base == NULL)
-                MessageBox(hwnd, "Could not load SM_BMP_MATRIZ!", "Error", MB_OK | MB_ICONEXCLAMATION);
-
-            SendMessage(hwnd,WM_PAINT,0,0);
-
+                criar_botoes(hwnd, h_buttons);
+                matriz_base = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(GM_BMP_MATRIZ));
+                if(matriz_base == NULL)
+                    MessageBox(hwnd, "Could not load SM_BMP_MATRIZ!", "Error", MB_OK | MB_ICONEXCLAMATION);
+                UpdateWindow(hwnd);
+            };
             break;
 
         case WM_PAINT:
@@ -238,8 +242,9 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
             desenhar_matriz(hwnd,hdc,&mat[0],M1_X_POS,M1_Y_POS);
             desenhar_matriz(hwnd,hdc,&mat[1],M2_X_POS,M2_Y_POS);
             desenhar_dados_matriz(hdc,&mat[0],M1_X_POS,M1_Y_POS);
+            //printf("%p",&mat[0]);
             desenhar_dados_matriz(hdc,&mat[1],M2_X_POS,M2_Y_POS);
-
+            //printf("%p",&mat[1]);
             EndPaint(hwnd, &ps);
         }
         break;
@@ -256,14 +261,9 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                 break;
                 case BN_CLICKED:
                     if(!gm_active_window){
-                        mat[2].inicio = somar_matriz(mat[0].inicio,mat[1].inicio,mat[0].dim_x,mat[0].dim_y);
-                        mat[2].dim_x = mat[0].dim_x;
-                        mat[2].dim_y = mat[0].dim_y;
-                        gm_active_window = CreateDialog(GetModuleHandle(NULL),MAKEINTRESOURCE(1001),hwnd,box1proc);
-                        if(gm_active_window != NULL){
-                            ShowWindow(gm_active_window, SW_SHOW);
-                            SendMessage(gm_active_window,WM_CREATE,0,0);
-                        };
+                        verificar_botao_pressionado(&gm_active_window,lParam,mat,h_buttons,hwnd,&gm_selected);
+                        InvalidateRect(hwnd,NULL,1);
+                        UpdateWindow(hwnd);
                     };
                     //lParam=handle
 
