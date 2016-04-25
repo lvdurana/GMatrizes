@@ -1,7 +1,7 @@
 #include "f_base.h"
 
 //Variáveis globais
-TCHAR szClassName[] = _T("CodeBlocksWindowsApp");
+TCHAR szClassName[] = _T("GMatrizes");
 //HBITMAP matriz_base = NULL;
 HWND h_buttons[NUM_BUTTONS]; //button
 matriz mat[NUM_MATRIZES+1];
@@ -45,7 +45,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     hwnd = CreateWindowEx (
            0,                   /* Extended possibilites for variation */
            szClassName,         /* Classname */
-           _T("Code::Blocks Template Windows App"),       /* Title Text */
+           _T("Gerenciador de Matrizes"),       /* Title Text */
            WS_OVERLAPPEDWINDOW, /* default window */
            CW_USEDEFAULT,       /* Windows decides the position */
            CW_USEDEFAULT,       /* where the window ends up on the screen */
@@ -134,10 +134,14 @@ BOOL CALLBACK box_data_proc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lPara
                 case IDOK:
                     {
                         char *mione;
+                        float dado;
                         mione = (char*)malloc(sizeof(char)*MAX_CHAR_SIZE);
                         GetWindowText(GetDlgItem(hwnd,4001),mione,MAX_CHAR_SIZE);
-                        //printf("%f",atof(mione));
-                        inserir_dado_ordenado(&(mat[gm_selected.index].inicio),atof(mione),gm_selected.x,gm_selected.y,mat[gm_selected.index].dim_x,mat[gm_selected.index].dim_y);
+                        dado = atof(mione);
+                        if(dado != 0)
+                            inserir_dado_ordenado(&(mat[gm_selected.index].inicio),dado,gm_selected.x,gm_selected.y,mat[gm_selected.index].dim_x,mat[gm_selected.index].dim_y);
+                        else
+                            excluir_dado(&(mat[gm_selected.index].inicio), gm_selected.x, gm_selected.y);
                         SendMessage(hwnd,WM_CLOSE,0,0);
                         RedrawWindow(main_window, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
                     }
@@ -182,6 +186,8 @@ BOOL CALLBACK edit_dim_proc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lPara
                             SendMessage(hwnd,WM_CLOSE,0,0);
                             InvalidateRect(main_window,NULL,1);
                             UpdateWindow(main_window);
+                            atualizar_botoes_permitidos(mat,h_buttons);
+
                         };
                     }
                 break;
@@ -225,6 +231,8 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
 
 
                 criar_botoes(hwnd, h_buttons);
+                atualizar_botoes_permitidos(mat,h_buttons);
+
                 matriz_base = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(GM_BMP_MATRIZ));
                 if(matriz_base == NULL)
                     MessageBox(hwnd, "Could not load SM_BMP_MATRIZ!", "Error", MB_OK | MB_ICONEXCLAMATION);
@@ -255,9 +263,10 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                     PostMessage(hwnd,WM_CLOSE,0,0);
                 break;
                 case ID_STUFF_GO:
-                    SetBkMode(GetDC(hwnd), TRANSPARENT);
-                    //DrawText(GetDC(hwnd), "Oi Cassiano", -1, prc, DT_WORDBREAK);
-                    TextOut(GetDC(hwnd),0,30,"Oi Cassianooooooooooooooooooo",20);
+                    debug_mostrar_matriz(mat[0].inicio);
+                break;
+                case ID_STUFF_M2:
+                    debug_mostrar_matriz(mat[1].inicio);
                 break;
                 case BN_CLICKED:
                     if(!gm_active_window){

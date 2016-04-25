@@ -14,6 +14,44 @@ nodo * Cria_Nodo() //aloca memória para o nodo
      return p;
 }
 
+void debug_mostrar_matriz(nodo *inicio){
+    int index = 0;
+    nodo *aux = inicio;
+
+    system("cls");
+    for(; aux!=NULL; aux = aux->prox){
+        printf("%d  x:%d y:%d dado: %f\n",index,aux->col,aux->lin,aux->dado);
+        index++;
+
+    };
+
+}
+
+int excluir_dado(nodo **inicio, int x, int y){
+
+    nodo *ant = NULL, *aux = *inicio;
+
+    while(aux!=NULL){
+        if(aux->col == x && aux->lin == y){
+            if(ant!=NULL)
+                ant->prox = aux->prox;
+            else
+                *inicio = aux->prox;
+            liberar_memoria_nodo(aux);
+            return 1;
+        };
+        ant = aux;
+        aux = aux->prox;
+    };
+    return 0;
+
+}
+
+int liberar_memoria_nodo(nodo *nodo){
+    free(nodo);
+
+}
+
 
 void inserir_dado_ordenado(nodo **p,float dado,int x ,int y ,int max_x ,int max_y)
 {
@@ -169,8 +207,7 @@ return mats;
 
 }
 
-float *mostrar_dados_diagonal(nodo *lista,int dim)
-{
+float *mostrar_dados_diagonal(nodo *lista,int dim){
 
 int c;
 nodo *aux = lista;
@@ -355,116 +392,4 @@ nodo *multiplicar_matriz(nodo *mat1, nodo *mat2, int max_x1, int max_y1,int max_
     }
 
     return mat3;
-}
-
-void maina()
-{
-    //x = col
-    //y = lin
-    //não me questione porque
-    int tp0,c,d,x,y;
-    int max_lin[3];
-    int max_col[3];
-    float dado;
-    nodo *mat1,*mat2,*mat3;
-
-    //primeira matriz
-
-    mat1 = NULL;
-    mat3 = NULL;
-
-    printf("Primeira matriz\n");
-    printf("tamanho maximo da linha:\n");
-    scanf("%d",&max_col[0]);
-
-
-    printf("tamanho maximo da coluna:\n");
-    scanf("%d",&max_lin[0]);
-
-    while (1){
-
-        printf("X:");
-        scanf("%d",&x);
-
-        if (x < 0)
-            break;
-
-        printf("Y:");
-        scanf("%d",&y);
-
-        printf("Entre o dado\n");
-        scanf("%f",&dado);
-
-
-        system("cls");
-
-        //inserir_dado_ordenado((&mat1),dado,x,y,max_col[0],max_lin[0]);
-
-        mostrar_dados(mat1,max_col[0],max_lin[0]);
-
-        imprime_lista_encadeada(mat1);
-        getch();
-        system("cls");
-    };
-    system("cls");
-/*
-   //segunda matriz
-
-    mat2 = NULL;
-
-    printf("Segunda matriz\n");
-    printf("Tamanho da primeira matriz:%dX%d\n",max_col[0],max_lin[0]);
-    printf("tamanho maximo da linha:\n");
-    scanf("%d",&max_col[1]);
-
-
-    printf("tamanho maximo da coluna:\n");
-    scanf("%d",&max_lin[1]);
-
-
-    while (1){
-
-        printf("X:");
-        scanf("%d",&x);
-
-        if (x < 0)
-            break;
-
-        printf("Y:");
-        scanf("%d",&y);
-
-        printf("Entre o dado\n");
-        scanf("%f",&dado);
-
-
-        system("cls");
-
-        inserir_dado_ordenado((&mat2),dado,x,y,max_col[1],max_lin[1]);
-
-        mostrar_dados(mat2,max_col[1],max_lin[1]);
-
-        imprime_lista_ecandeada(mat2);
-        getch();
-        system("cls");
-    };
-
-    system("cls");
-    printf("\n");
-    mostrar_dados(mat1,max_col[0],max_lin[0]);
-    printf("\n\n");
-    mostrar_dados(mat2,max_col[1],max_lin[1]);
-    printf("\n\n");
-    mat3 = somar_matriz(mat1,mat2,max_col[0],max_lin[0]);
-    mostrar_dados(mat3,max_col[0],max_lin[0]);
-
-    liberar_memoria(mat3);
-    printf("\n\n");
-    mat3 = subtrair_matriz(mat1,mat2,max_col[0],max_lin[0]);
-    mostrar_dados(mat3,max_col[0],max_lin[0]);
-*/
-
-    mat3 = transpor_matriz(mat1,max_col[0],max_lin[0]);
-
-    mostrar_dados(mat3,max_lin[0],max_col[0]);
-
 }

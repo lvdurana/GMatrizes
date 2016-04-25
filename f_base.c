@@ -1,6 +1,8 @@
 #include "f_base.h"
 
 
+
+
 void desenhar_matriz(HWND hwnd, HDC hdc, matriz *mat, int pos_x, int pos_y){
 
     HWND mat_base = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(GM_BMP_MATRIZ));
@@ -38,24 +40,53 @@ void desenhar_matriz(HWND hwnd, HDC hdc, matriz *mat, int pos_x, int pos_y){
 
 void desenhar_dado(HDC hdc, float dado, int pos_x, int pos_y){
     RECT rect;
-    char text[15];
-
+    char text[MAX_CHAR_SIZE];
+    int precision = MAX_PRECISION;
 
     rect.top = pos_y+1;
     rect.left = pos_x+1;
     rect.right = pos_x+M_FIELD_WIDTH-1;
     rect.bottom = pos_y+M_FIELD_HEIGHT-1;
-    sprintf(text,"%.0f",dado);
+
+    if((dado -(int)dado) == 0)
+        precision = 0;
+
+
+    HFONT font_old;
+    HFONT font = CreateFont(
+     15, //    nHeight,
+     0, //     nWidth,
+     0, //     nEscapement,
+     0, //_In_ int     nOrientation,
+     400, //_In_ int     fnWeight,
+     0, //  fdwItalic,
+     0, //   fdwUnderline,
+     0, //   fdwStrikeOut,
+     ANSI_CHARSET, //   fdwCharSet,
+     OUT_DEFAULT_PRECIS, //   fdwOutputPrecision,
+     CLIP_DEFAULT_PRECIS, //   fdwClipPrecision,
+     DEFAULT_QUALITY, //   fdwQuality,
+     DEFAULT_PITCH | FF_DONTCARE, //   fdwPitchAndFamily,
+     NULL // lpszFace
+    );
+
+
+    font_old = SelectObject(hdc,font);
+
+
+    sprintf(text,"%.*f",precision,dado);
     if(dado != 0){
+
         HWND mat_cor = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(GM_BMP_MATRIZ2));
         HDC hdcMem = CreateCompatibleDC(hdc);
         HBITMAP hbmOld = (HBITMAP)SelectObject(hdcMem, mat_cor);
         BitBlt(hdc, pos_x+1, pos_y, M_FIELD_WIDTH-2, M_FIELD_HEIGHT, hdcMem, 0, 0, SRCCOPY);
-        //SetTextColor(hdc,RGB(0,0,0));
-    }
+    };
 
 
     DrawText(hdc, text, -1, &rect, DT_WORDBREAK|DT_CENTER);
+    SelectObject(hdc,font_old);
+    DeleteObject(font);
 }
 
 void desenhar_dados_matriz(HDC hdc, matriz *mat, int pos_x, int pos_y){
@@ -205,6 +236,8 @@ void verificar_botao_pressionado(int *act_win, LPARAM lParam, matriz *mat, HWND 
         mat[1].inicio = mat[2].inicio;
         mat[1].dim_x = mat[2].dim_x;
         mat[1].dim_y = mat[2].dim_y;
+        atualizar_botoes_permitidos(mat,h_buttons);
+
     }
     else
     if(lParam == h_buttons[0]){
@@ -213,6 +246,7 @@ void verificar_botao_pressionado(int *act_win, LPARAM lParam, matriz *mat, HWND 
         mat[2].dim_x = mat[0].dim_x;
         mat[0].dim_x = mat[0].dim_y;
         mat[0].dim_y = mat[2].dim_x;
+        atualizar_botoes_permitidos(mat,h_buttons);
     }
     else
     if(lParam == h_buttons[4]){
@@ -221,6 +255,7 @@ void verificar_botao_pressionado(int *act_win, LPARAM lParam, matriz *mat, HWND 
         mat[2].dim_x = mat[1].dim_x;
         mat[1].dim_x = mat[1].dim_y;
         mat[1].dim_y = mat[2].dim_x;
+        atualizar_botoes_permitidos(mat,h_buttons);
     }
     else
     if(lParam == h_buttons[1]){
@@ -263,6 +298,7 @@ void verificar_botao_pressionado(int *act_win, LPARAM lParam, matriz *mat, HWND 
         SendDlgItemMessage(*act_win,4003,WM_SETTEXT,0,lin);
         SendDlgItemMessage(*act_win,4001,WM_PAINT,0,0);
         SendDlgItemMessage(*act_win,4003,WM_PAINT,0,0);
+        atualizar_botoes_permitidos(mat,h_buttons);
 
     }
     else
@@ -281,19 +317,19 @@ void verificar_botao_pressionado(int *act_win, LPARAM lParam, matriz *mat, HWND 
         SendDlgItemMessage(*act_win,4003,WM_SETTEXT,0,lin);
         SendDlgItemMessage(*act_win,4001,WM_PAINT,0,0);
         SendDlgItemMessage(*act_win,4003,WM_PAINT,0,0);
+        atualizar_botoes_permitidos(mat,h_buttons);
+
     }
     else
     if(lParam == h_buttons[3]){
         //Limpar matriz 1
-        mat[0].inicio = NULL;
-        //liberar_memoria(mat[0].inicio);
+        limpar_matriz(&(mat[0].inicio));
 
     }
     else
     if(lParam == h_buttons[7]){
         //Limpar matriz 1
-        mat[1].inicio = NULL;
-        //liberar_memoria(mat[0].inicio);
+        limpar_matriz(&(mat[1].inicio));
 
     };
 
@@ -308,15 +344,11 @@ void fechar_janela(HWND *hwnd){
 
 int verificar_cursor(gm_select *sel, int cur_x,int cur_y, int ox_mat, int oy_mat, int dim_x_mat, int dim_y_mat){
 
+    //Ajustar posição do cursor em relação aos campos da matriz
     cur_x = (int)floor((float)(cur_x-ox_mat)/M_FIELD_WIDTH);
     cur_y = (int)floor((float)(cur_y-oy_mat)/M_FIELD_HEIGHT);
-    /*cur_x-=ox_mat;
-    cur_y-=oy_mat;
 
-    cur_x/=M_FIELD_WIDTH;
-    cur_y/=M_FIELD_HEIGHT;*/
-    //printf("%d %d\n",cur_x, cur_y);
-
+    //Verificar se a posição do cursor existe na matriz
     if(cur_x<dim_x_mat && cur_x >= 0)
         if(cur_y<dim_y_mat && cur_y >= 0){
             sel->x = cur_x;
@@ -328,19 +360,48 @@ int verificar_cursor(gm_select *sel, int cur_x,int cur_y, int ox_mat, int oy_mat
 }
 
 int verificar_cursor_matrizes(gm_select *sel, matriz *matrizes, int cur_x, int cur_y){
-    //for(i=0;i<NUM_MATRIZES;i++){
-        if(!verificar_cursor(sel,cur_x,cur_y,M1_X_POS,M1_Y_POS,(matrizes+0)->dim_x,(matrizes+0)->dim_y)){
-            sel->index = 0;
+
+    //Verificar se o cursor está dentro de uma das matrizes
+    if(!verificar_cursor(sel,cur_x,cur_y,M1_X_POS,M1_Y_POS,(matrizes+0)->dim_x,(matrizes+0)->dim_y)){
+        sel->index = 0;
+        return 0;
+    }
+    else{
+        if(!verificar_cursor(sel,cur_x,cur_y,M2_X_POS , M2_Y_POS,(matrizes+1)->dim_x,(matrizes+1)->dim_y)){
+            sel->index = 1;
             return 0;
-        }
-        else{
-            if(!verificar_cursor(sel,cur_x,cur_y,M2_X_POS , M2_Y_POS,(matrizes+1)->dim_x,(matrizes+1)->dim_y)){
-                sel->index = 1;
-                return 0;
-            };
         };
-    //}
+    };
     return 1;
 
 };
+
+void atualizar_botoes_permitidos(matriz *mat, HWND *buttons){
+    BOOL dim_iguais = FALSE;
+    BOOL m1_trans = FALSE;
+    BOOL m2_trans = FALSE;
+    BOOL dim_mult = FALSE;
+
+    //Verificar se as dimensões das matrizes são iguais
+    if((mat[0].dim_x == mat[1].dim_x) && (mat[0].dim_y == mat[1].dim_y))
+        dim_iguais = TRUE;
+
+    //Verificar se a matriz 1 pode ser transposta
+    if(mat[0].dim_x <= MAX_Y_DIMENSION && mat[0].dim_y <= MAX_X_DIMENSION)
+        m1_trans = TRUE;
+
+    //Verificar se a matriz 2 pode ser transposta
+    if(mat[1].dim_x <= MAX_Y_DIMENSION && mat[1].dim_y <= MAX_X_DIMENSION)
+        m2_trans = TRUE;
+
+    //Verificar se as matrizes podem ser multiplicadas
+    if(mat[0].dim_x == mat[1].dim_y)
+        dim_mult = TRUE;
+
+    EnableWindow(buttons[8],dim_iguais);
+    EnableWindow(buttons[9],dim_iguais);
+    EnableWindow(buttons[10],dim_mult);
+    EnableWindow(buttons[0],m1_trans);
+    EnableWindow(buttons[4],m2_trans);
+}
 

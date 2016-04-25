@@ -38,7 +38,7 @@
 #define Y_PADDING_1 20
 #define Y_PADDING_2 20
 #define Y_PADDING_3 20
-#define Y_PADDING_4 32
+#define Y_PADDING_4 64
 #define B_X_PADDING 10
 #define B_Y_PADDING 10
 
@@ -73,19 +73,24 @@ typedef struct selec {
 void desenhar_matriz(HWND hwnd, HDC hdc, matriz *mat, int pos_x, int pos_y);
 void desenhar_dado(HDC hdc, float dado, int pos_x, int pos_y);
 void desenhar_dados_matriz(HDC hdc, matriz *mat, int pos_x, int pos_y);
+void desenhar_dados_diagonal(HDC hdc, matriz *mat, int pos_x, int pos_y);
 void criar_botoes(HWND hwnd, HWND *buttons);
 void verificar_botao_pressionado(int *act_win, LPARAM lParam, matriz *mat, HWND *h_buttons, HWND hwnd, gm_select *sel);
 void fechar_janela(HWND *hwnd);
 int verificar_cursor(gm_select *sel, int cur_x,int cur_y, int ox_mat, int oy_mat, int dim_x_mat, int dim_y_mat);
 int verificar_cursor_matrizes(gm_select *sel, matriz *matrizes, int cur_x, int cur_y);
-
-
+void atualizar_botoes_permitidos(matriz *mat, HWND *buttons);
 
 nodo * Cria_Nodo();
+void debug_mostrar_matriz(nodo *inicio);
+int excluir_dado(nodo **inicio, int x, int y);
+int liberar_memoria_nodo(nodo *nodo);
 void inserir_dado_ordenado(nodo **p,float dado,int x ,int y ,int max_x ,int max_y);
 void liberar_memoria(nodo *mat);
-retornar_valor(int x, int y,int max_y);
+void alterar_dimensao(nodo **inicio, int *old_x, int *old_y, int new_x, int new_y);
+int retornar_valor(int x, int y,int max_y);
 float *mostrar_dados(nodo *lista,int max_x,int max_y);
+float *mostrar_dados_diagonal(nodo *lista,int dim);
 char imprime_lista_encadeada(nodo *N);
 nodo *somar_matriz(nodo *aux1, nodo *aux2,int max_col,int max_lin);
 nodo *subtrair_matriz(nodo *aux1, nodo *aux2,int max_col,int max_lin);

@@ -14,11 +14,10 @@ IDR_MYMENU MENU
   {
     MENUITEM "E&xit", ID_FILE_EXIT
   }
-  POPUP "&Stuff"
+  POPUP "&Debug"
   {
-    MENUITEM "&Go", ID_STUFF_GO
-    MENUITEM "G&o somewhere else", 0, GRAYED
-  }
+    MENUITEM "&Mostrar dados M1", ID_STUFF_GO
+    MENUITEM "&Mostrar dados M2", ID_STUFF_M2  }
 }
 
 IDI_MYICON ICON "menu_one.ico"
