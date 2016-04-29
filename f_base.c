@@ -17,18 +17,24 @@ void desenhar_matriz(HWND hwnd, HDC hdc, matriz *mat, int pos_x, int pos_y){
     BitBlt(hdc, pos_x, pos_y, M_FIELD_WIDTH, M_FIELD_HEIGHT, hdcMem, 0, 0, SRCCOPY);
     for(i=1;i<mat->dim_x-1;i++)
         BitBlt(hdc, pos_x+M_FIELD_WIDTH*i, pos_y, M_FIELD_WIDTH, M_FIELD_HEIGHT, hdcMem, 32, 0, SRCCOPY);
-    BitBlt(hdc, pos_x+M_FIELD_WIDTH*i, pos_y, M_FIELD_WIDTH, M_FIELD_HEIGHT, hdcMem, 64, 0, SRCCOPY);
+    //desenhar final do bitmap
+    if(mat->dim_x > 1)
+        BitBlt(hdc, pos_x+M_FIELD_WIDTH*i, pos_y, M_FIELD_WIDTH, M_FIELD_HEIGHT, hdcMem, 64, 0, SRCCOPY);
+
     for(j=1;j<mat->dim_y-1;j++){
         BitBlt(hdc, pos_x, pos_y+M_FIELD_HEIGHT*j, M_FIELD_WIDTH, M_FIELD_HEIGHT, hdcMem, 0, 16, SRCCOPY);
         for(i=1;i<mat->dim_x-1;i++)
             BitBlt(hdc, pos_x+M_FIELD_WIDTH*i, pos_y+M_FIELD_HEIGHT*j, M_FIELD_WIDTH, M_FIELD_HEIGHT, hdcMem, 32, 16, SRCCOPY);
-        BitBlt(hdc, pos_x+M_FIELD_WIDTH*i, pos_y+M_FIELD_HEIGHT*j, M_FIELD_WIDTH, M_FIELD_HEIGHT, hdcMem, 64, 16, SRCCOPY);
+        if(mat->dim_x > 1)
+            BitBlt(hdc, pos_x+M_FIELD_WIDTH*i, pos_y+M_FIELD_HEIGHT*j, M_FIELD_WIDTH, M_FIELD_HEIGHT, hdcMem, 64, 16, SRCCOPY);
     }
-    BitBlt(hdc, pos_x, pos_y+M_FIELD_HEIGHT*j, M_FIELD_WIDTH, M_FIELD_HEIGHT, hdcMem, 0, 32, SRCCOPY);
-    for(i=1;i<mat->dim_x-1;i++)
-        BitBlt(hdc, pos_x+M_FIELD_WIDTH*i, pos_y+M_FIELD_HEIGHT*j, M_FIELD_WIDTH, M_FIELD_HEIGHT, hdcMem, 32, 32, SRCCOPY);
-    BitBlt(hdc, pos_x+M_FIELD_WIDTH*i, pos_y+M_FIELD_HEIGHT*j, M_FIELD_WIDTH, M_FIELD_HEIGHT, hdcMem, 64, 32, SRCCOPY);
-
+    if(mat->dim_y > 1){
+        BitBlt(hdc, pos_x, pos_y+M_FIELD_HEIGHT*j, M_FIELD_WIDTH, M_FIELD_HEIGHT, hdcMem, 0, 32, SRCCOPY);
+        for(i=1;i<mat->dim_x-1;i++)
+            BitBlt(hdc, pos_x+M_FIELD_WIDTH*i, pos_y+M_FIELD_HEIGHT*j, M_FIELD_WIDTH, M_FIELD_HEIGHT, hdcMem, 32, 32, SRCCOPY);
+        if(mat->dim_x > 1)
+            BitBlt(hdc, pos_x+M_FIELD_WIDTH*i, pos_y+M_FIELD_HEIGHT*j, M_FIELD_WIDTH, M_FIELD_HEIGHT, hdcMem, 64, 32, SRCCOPY);
+    };
 
     SelectObject(hdcMem, hbmOld);
     DeleteDC(hdcMem);
@@ -216,7 +222,7 @@ void verificar_botao_pressionado(int *act_win, LPARAM lParam, matriz *mat, HWND 
     if(lParam == h_buttons[10]){
         //Multiplicar matrizes
         mat[2].inicio = multiplicar_matriz(mat[0].inicio,mat[1].inicio,mat[0].dim_x,mat[0].dim_y,mat[1].dim_x,mat[1].dim_y);
-        mat[2].dim_x = mat[0].dim_x;
+        mat[2].dim_x = mat[1].dim_x;
         mat[2].dim_y = mat[0].dim_y;
         *act_win = CreateDialog(GetModuleHandle(NULL),MAKEINTRESOURCE(1001),hwnd,box1proc);
         if(*act_win != NULL){
@@ -394,7 +400,7 @@ void atualizar_botoes_permitidos(matriz *mat, HWND *buttons){
     if(mat[1].dim_x <= MAX_Y_DIMENSION && mat[1].dim_y <= MAX_X_DIMENSION)
         m2_trans = TRUE;
 
-    //Verificar se as matrizes podem ser multiplicadas
+    //Verificar se as matrizes podem ser multiplicadas //
     if(mat[0].dim_x == mat[1].dim_y)
         dim_mult = TRUE;
 

@@ -2,8 +2,7 @@
 
 //Variáveis globais
 TCHAR szClassName[] = _T("GMatrizes");
-//HBITMAP matriz_base = NULL;
-HWND h_buttons[NUM_BUTTONS]; //button
+HWND h_buttons[NUM_BUTTONS];
 matriz mat[NUM_MATRIZES+1];
 HWND gm_active_window = NULL;
 HWND main_window;
@@ -16,32 +15,26 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
                      LPSTR lpszArgument,
                      int nCmdShow)
 {
-    HWND hwnd;               /* This is the handle for our window */
-    MSG messages;            /* Here messages to the application are saved */
-    WNDCLASSEX wincl;        /* Data structure for the windowclass */
+    HWND hwnd;
+    MSG messages;
+    WNDCLASSEX wincl;
 
-    /* The Window structure */
     wincl.hInstance = hThisInstance;
     wincl.lpszClassName = szClassName;
-    wincl.lpfnWndProc = WindowProcedure;      /* This function is called by windows */
-    wincl.style = CS_DBLCLKS;                 /* Catch double-clicks */
+    wincl.lpfnWndProc = WindowProcedure;
+    wincl.style = CS_DBLCLKS;
     wincl.cbSize = sizeof (WNDCLASSEX);
-
-    /* Use default icon and mouse-pointer */
     wincl.hIcon = LoadIcon (NULL, IDI_APPLICATION);
     wincl.hIconSm = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MYICON), IMAGE_ICON, 16, 16, 0);
     wincl.hCursor = LoadCursor (NULL, IDC_ARROW);
-    wincl.lpszMenuName = MAKEINTRESOURCE(IDR_MYMENU);                 /* No menu */
-    wincl.cbClsExtra = 0;                      /* No extra bytes after the window class */
-    wincl.cbWndExtra = 0;                      /* structure or the window instance */
-    /* Use Windows's default colour as the background of the window */
+    wincl.lpszMenuName = MAKEINTRESOURCE(IDR_MYMENU);
+    wincl.cbClsExtra = 0;
+    wincl.cbWndExtra = 0;
     wincl.hbrBackground = (HBRUSH) COLOR_BACKGROUND;
 
-    /* Register the window class, and if it fails quit the program */
     if (!RegisterClassEx (&wincl))
         return 0;
 
-    /* The class is registered, let's create the program*/
     hwnd = CreateWindowEx (
            0,                   /* Extended possibilites for variation */
            szClassName,         /* Classname */
@@ -57,20 +50,15 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
            NULL                 /* No Window Creation data */
            );
 
-    /* Make the window visible on the screen */
     ShowWindow (hwnd, nCmdShow);
     main_window = hwnd;
 
-    /* Run the message loop. It will run until GetMessage() returns 0 */
     while (GetMessage (&messages, NULL, 0, 0))
     {
-        /* Translate virtual-key messages into character messages */
         TranslateMessage(&messages);
-        /* Send message to WindowProcedure */
         DispatchMessage(&messages);
     }
 
-    /* The program return-value is 0 - The value that PostQuitMessage() gave */
     printf("%d",IDR_MYMENU);
     return messages.wParam;
 
@@ -131,6 +119,7 @@ BOOL CALLBACK box_data_proc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lPara
         case WM_COMMAND:
             switch(LOWORD(wParam))
             {
+
                 case IDOK:
                     {
                         char *mione;
@@ -212,7 +201,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
 
 
 
-    switch (message)                  /* handle the messages */
+    switch (message)
     {
         case WM_CREATE:
             {
@@ -221,8 +210,8 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                 HWND matriz_base;
                 for(i=0;i<2;i++){
                     mat[i].inicio = NULL;
-                    mat[i].dim_x = 4;//MAX_X_DIMENSION;
-                    mat[i].dim_y = 3;//MAX_Y_DIMENSION;
+                    mat[i].dim_x = 4;
+                    mat[i].dim_y = 3;
                     d[i]=&(mat[i].inicio);
 
                     inserir_dado_ordenado(d[i],32,2,3,mat[i].dim_x,mat[i].dim_y);
@@ -250,9 +239,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
             desenhar_matriz(hwnd,hdc,&mat[0],M1_X_POS,M1_Y_POS);
             desenhar_matriz(hwnd,hdc,&mat[1],M2_X_POS,M2_Y_POS);
             desenhar_dados_matriz(hdc,&mat[0],M1_X_POS,M1_Y_POS);
-            //printf("%p",&mat[0]);
             desenhar_dados_matriz(hdc,&mat[1],M2_X_POS,M2_Y_POS);
-            //printf("%p",&mat[1]);
             EndPaint(hwnd, &ps);
         }
         break;
@@ -274,14 +261,12 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                         InvalidateRect(hwnd,NULL,1);
                         UpdateWindow(hwnd);
                     };
-                    //lParam=handle
 
                 break;
             }
             break;
         case WM_LBUTTONDOWN:
             {
-                //printf("%d %d\n",HIWORD(lParam),LOWORD(lParam));
                 if(!gm_active_window){
                     if(!verificar_cursor_matrizes(&gm_selected,mat,LOWORD(lParam),HIWORD(lParam))){
                         char *dado;
@@ -290,15 +275,14 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                         gm_active_window = CreateDialog(GetModuleHandle(NULL),MAKEINTRESOURCE(1002),hwnd,box_data_proc);
                         SendDlgItemMessage(gm_active_window,4001,WM_SETTEXT,0,dado);
                         SendDlgItemMessage(gm_active_window,4001,WM_PAINT,0,0);
-                        //SetWindowText(GetDlgItem(gm_active_window,4001),"oizinho");
                     };
                 };
             }
         break;
         case WM_DESTROY:
-            PostQuitMessage (0);       /* send a WM_QUIT to the message queue */
+            PostQuitMessage (0);
             break;
-        default:                      /* for messages that we don't deal with */
+        default:
             return DefWindowProc (hwnd, message, wParam, lParam);
     }
 

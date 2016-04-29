@@ -170,10 +170,8 @@ if (aux == NULL)
         for(c=0;c<max_x;c++)
         {
             *(mats +(d*max_x)+c) = 0;
-            //printf("%.0f",*(mats+(d*max_x)+c));
 
         }
-        //printf("\n");
     }
 
 }
@@ -186,19 +184,16 @@ else
             if ((aux->col == c) && (aux->lin == d))
             {
                 *(mats+(d*max_x)+c) = aux->dado;
-                //printf("%.0f",*(mats+(d*max_x)+c));
                 if (aux->prox != NULL)
                     aux = aux->prox;
             }
             else
             {
                 *(mats+(d*max_x)+c) = 0;
-                //printf("%.0f",*(mats+(d*max_x)+c));
 
             }
 
         }
-        //printf("\n");
     }
 
 }
@@ -210,24 +205,15 @@ return mats;
 float *mostrar_dados_diagonal(nodo *lista,int dim){
 
 int c;
-nodo *aux = lista;
 float *mats = (float*)malloc(sizeof(float)*dim);
 
-if (aux == NULL)
+if (lista == NULL)
     for(c=0;c<dim;c++)
         *(mats+c) = 0;
-else{
-    for(c=0;c<dim;c++){
-            if ((aux->col == c) && (aux->lin == c)){
-                *(mats+c) = aux->dado;
-                if (aux->prox != NULL)
-                    aux = aux->prox;
-            }
-            else
-                *(mats+c) = 0;
+else
+    for(c=0;c<dim;c++)
+        *(mats+c) = procurar(lista,c,c);
 
-        };
-};
 return mats;
 
 }
@@ -237,7 +223,7 @@ char imprime_lista_encadeada(nodo *N)
      nodo *aux;
 
      if(N == NULL)
-     printf("\n A lista está vazia!!");
+        printf("\n A lista está vazia!!");
      else
      {
      for(aux = N; aux != NULL; aux = aux->prox)
